@@ -4,7 +4,7 @@ const path = require('path');
 
 const nextConfig = {
   experimental: {
-    serverExternalPackages: ['next'],
+    serverActions: true,
   },
   server: {
     https: true,
