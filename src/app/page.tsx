@@ -1,103 +1,125 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
+import React from 'react'
+import { useSession } from 'next-auth/react'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+import { Music, Heart, Users, MessageCircle, MapPin, Sparkles } from 'lucide-react'
+import Link from 'next/link'
+
+export default function HomePage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      router.push('/dashboard')
+    }
+  }, [status, router])
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+      </div>
+    )
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100">
+      {/* ヘッダー */}
+      <header className="container mx-auto px-6 py-8">
+        <div className="flex justify-between items-center">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
+              <Music className="w-6 h-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">おとなりさん</h1>
+          </div>
+          <Link 
+            href="/auth/signin"
+            className="bg-orange-500 hover:bg-orange-600 text-white px-6 py-2 rounded-full transition-colors"
+          >
+            ログイン
+          </Link>
+        </div>
+      </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      {/* メインセクション */}
+      <main className="container mx-auto px-6 py-12">
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-orange-400 to-amber-500 rounded-full mb-8">
+            <Music className="w-12 h-12 text-white" />
+          </div>
+          <h2 className="text-5xl font-bold text-gray-900 mb-6">
+            音楽でつながる
+            <br />
+            <span className="text-orange-500">友達コミュニティ</span>
+          </h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+            好きなアーティストや音楽の趣味が合う友達を見つけて、新しい音楽体験を共有しよう
+          </p>
+          <Link
+            href="/auth/signin"
+            className="inline-flex items-center bg-green-500 hover:bg-green-600 text-white font-semibold px-8 py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.84-.179-.959-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.361 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56z"/>
+            </svg>
+            Spotifyで無料で始める
+          </Link>
+        </div>
+
+        {/* 機能紹介 */}
+        <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="bg-white rounded-2xl p-8 shadow-lg text-center">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Heart className="w-8 h-8 text-orange-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">音楽相性マッチング</h3>
+            <p className="text-gray-600">
+              共通のお気に入りアーティストや音楽ジャンルから、あなたと相性の良い友達を見つけます
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-8 shadow-lg text-center">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <MessageCircle className="w-8 h-8 text-orange-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">リアルタイムチャット</h3>
+            <p className="text-gray-600">
+              1対1チャットやグループチャットで音楽談義やライブ情報をシェアしよう
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl p-8 shadow-lg text-center">
+            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-orange-600" />
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-3">コミュニティ</h3>
+            <p className="text-gray-600">
+              アーティスト別やジャンル別のコミュニティで、同じ趣味を持つ仲間と出会えます
+            </p>
+          </div>
+        </div>
+
+        {/* CTA */}
+        <div className="text-center bg-white rounded-2xl p-12 shadow-lg">
+          <Sparkles className="w-12 h-12 text-orange-500 mx-auto mb-4" />
+          <h3 className="text-3xl font-bold text-gray-900 mb-4">
+            音楽を通じた新しい友情を始めよう
+          </h3>
+          <p className="text-gray-600 mb-8 text-lg">
+            あなたの音楽の趣味が、素敵な出会いのきっかけになります
+          </p>
+          <Link
+            href="/auth/signin"
+            className="inline-flex items-center bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-4 rounded-2xl transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
           >
-            Read our docs
-          </a>
+            今すぐ始める
+          </Link>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
-  );
+  )
 }
