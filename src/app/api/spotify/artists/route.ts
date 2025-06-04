@@ -3,14 +3,21 @@ import { getServerSession } from 'next-auth'
 import { getSpotifyApi } from '@/lib/spotify'
 
 export async function GET(request: NextRequest) {
-  const session = await getServerSession()
-  
-  if (!session?.accessToken) {
-    return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-  }
-
   try {
-    const spotifyApi = await getSpotifyApi(session.accessToken)
+    const session = await getServerSession()
+    
+    if (!session) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
+    }
+
+    // セッションからアクセストークンを取得（型アサーション）
+    const accessToken = (session as any).accessToken as string
+    
+    if (!accessToken) {
+      return NextResponse.json({ error: 'No access token found' }, { status: 401 })
+    }
+
+    const spotifyApi = await getSpotifyApi(accessToken)
     const topArtists = await spotifyApi.getTopArtists('medium_term', 50)
     
     // アーティストデータを統一形式に変換
@@ -27,6 +34,9 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ artists })
   } catch (error) {
     console.error('Spotify API error:', error)
-    return NextResponse.json({ error: 'Failed to fetch artists' }, { status: 500 })
+    return NextResponse.json({ 
+      error: 'Failed to fetch artists',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 })
   }
 } 
