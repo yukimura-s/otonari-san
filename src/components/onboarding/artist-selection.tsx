@@ -19,34 +19,64 @@ interface ArtistSelectionProps {
 }
 
 export default function ArtistSelection({ onSelectionComplete }: ArtistSelectionProps) {
+  const { data: session, status } = useSession()
+  const [artists, setArtists] = useState<Artist[]>([])
   const [selectedArtists, setSelectedArtists] = useState<Artist[]>([])
   const [searchQuery, setSearchQuery] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [artists, setArtists] = useState<Artist[]>([])
   const { theme } = useTheme()
-  const { data: session } = useSession()
 
   useEffect(() => {
     const fetchArtists = async () => {
       try {
-        const response = await fetch('/api/spotify/artists')
-        if (!response.ok) {
-          throw new Error('アーティストデータの取得に失敗しました')
+        console.log('セッション状態:', status)
+        console.log('セッション情報:', session)
+
+        if (status === 'loading') {
+          console.log('セッション読み込み中...')
+          return
         }
+
+        if (status === 'unauthenticated' || !session) {
+          setError('認証が必要です。ログインしてください。')
+          setIsLoading(false)
+          return
+        }
+
+        if (!session.accessToken) {
+          setError('Spotifyアクセストークンが見つかりません。再ログインしてください。')
+          setIsLoading(false)
+          return
+        }
+
+        console.log('Spotify API呼び出し開始...')
+        const response = await fetch('/api/spotify/artists')
+        
+        if (!response.ok) {
+          const errorText = await response.text()
+          console.error('APIエラー:', response.status, errorText)
+          throw new Error(`APIエラー: ${response.status} - ${errorText}`)
+        }
+        
         const data = await response.json()
-        setArtists(data.artists)
+        console.log('取得したデータ:', data)
+        
+        if (data.error) {
+          throw new Error(data.error)
+        }
+        
+        setArtists(data.artists || [])
       } catch (err) {
+        console.error('fetchArtists エラー:', err)
         setError(err instanceof Error ? err.message : '予期せぬエラーが発生しました')
       } finally {
         setIsLoading(false)
       }
     }
 
-    if (session?.accessToken) {
-      fetchArtists()
-    }
-  }, [session])
+    fetchArtists()
+  }, [session, status])
 
   const filteredArtists = artists.filter((artist: Artist) =>
     artist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
